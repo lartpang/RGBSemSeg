@@ -311,7 +311,7 @@ class DualRGBModel(nn.Module):
         dec_num_heads=2,
         dec_mlp_ratio=1,
         use_checkpoint=False,
-        pretrained=None,
+        pretrained="https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_base_patch4_window12_384.pth",
     ):
         super().__init__()
         # encoder

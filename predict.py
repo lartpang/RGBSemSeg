@@ -13,7 +13,7 @@ from torch.utils import data
 from tqdm import tqdm
 
 import models as model_zoo
-from dataset import CLASSES
+from constant import CLASSES
 from utils import pt_utils
 from utils.pt_utils import ensure_dir, load_model
 from utils.py_utils import resize

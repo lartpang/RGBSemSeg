@@ -13,9 +13,9 @@ from torch.utils import data
 from torch.utils.tensorboard import SummaryWriter
 
 import models as model_zoo
+from constant import CLASSES
 from engine.engine import Engine
 from utils import pt_utils
-from utils.data import Label
 from utils.init_func import group_weight
 from utils.lr_policy import WarmUpPolyLR
 from utils.transforms import (
@@ -23,67 +23,6 @@ from utils.transforms import (
     normalize,
     random_crop_pad_to_shape,
 )
-
-CLASSES = [
-    # name,id,trainId,category,catId,hasInstances,ignoreInEval,color,isDifficult
-    Label("unlabeled", 0, 255, "void", 0, False, True, (0, 0, 0), None),
-    Label("ego vehicle", 1, 255, "void", 0, False, True, (0, 0, 0), None),
-    Label("rectification border", 2, 255, "void", 0, False, True, (0, 0, 0), None),
-    Label("out of roi", 3, 255, "void", 0, False, True, (0, 0, 0), None),
-    Label("static", 4, 255, "void", 0, False, True, (0, 0, 0), None),
-    Label("dynamic", 5, 255, "void", 0, False, True, (111, 74, 0), None),
-    Label("ground", 6, 255, "void", 0, False, True, (81, 0, 81), None),
-    Label("road", 7, 0, "flat", 1, False, False, (128, 64, 128), False),
-    Label("sidewalk", 8, 1, "flat", 1, False, False, (244, 35, 232), False),
-    Label("parking", 9, 255, "flat", 1, False, True, (250, 170, 160), None),
-    Label("rail track", 10, 255, "flat", 1, False, True, (230, 150, 140), None),
-    Label("building", 11, 2, "construction", 2, False, False, (70, 70, 70), False),
-    Label("wall", 12, 3, "construction", 2, False, False, (102, 102, 156), False),
-    Label("fence", 13, 4, "construction", 2, False, False, (190, 153, 153), False),
-    Label("guard rail", 14, 255, "construction", 2, False, True, (180, 165, 180), None),
-    Label("bridge", 15, 255, "construction", 2, False, True, (150, 100, 100), None),
-    Label("tunnel", 16, 255, "construction", 2, False, True, (150, 120, 90), None),
-    Label("pole", 17, 5, "object", 3, False, False, (153, 153, 153), True),
-    Label("polegroup", 18, 255, "object", 3, False, True, (153, 153, 153), None),
-    Label("traffic light", 19, 6, "object", 3, False, False, (250, 170, 30), True),
-    Label("traffic sign", 20, 7, "object", 3, False, False, (220, 220, 0), False),
-    Label("vegetation", 21, 8, "nature", 4, False, False, (107, 142, 35), False),
-    Label("terrain", 22, 9, "nature", 4, False, False, (152, 251, 152), False),
-    Label("sky", 23, 10, "sky", 5, False, False, (70, 130, 180), False),
-    Label("person", 24, 11, "human", 6, True, False, (220, 20, 60), True),
-    Label("rider", 25, 12, "human", 6, True, False, (255, 0, 0), True),
-    Label("car", 26, 13, "vehicle", 7, True, False, (0, 0, 142), True),
-    Label("truck", 27, 14, "vehicle", 7, True, False, (0, 0, 70), True),
-    Label("bus", 28, 15, "vehicle", 7, True, False, (0, 60, 100), True),
-    Label("caravan", 29, 255, "vehicle", 7, True, True, (0, 0, 90), None),
-    Label("trailer", 30, 255, "vehicle", 7, True, True, (0, 0, 110), None),
-    Label("train", 31, 16, "vehicle", 7, True, False, (0, 80, 100), True),
-    Label("motorcycle", 32, 17, "vehicle", 7, True, False, (0, 0, 230), True),
-    Label("bicycle", 33, 18, "vehicle", 7, True, False, (119, 11, 32), True),
-    Label("license plate", -1, -1, "vehicle", 7, False, True, (0, 0, 142), None),
-]
-
-PALETTE = [
-    [128, 64, 128],
-    [244, 35, 232],
-    [70, 70, 70],
-    [102, 102, 156],
-    [190, 153, 153],
-    [153, 153, 153],
-    [250, 170, 30],
-    [220, 220, 0],
-    [107, 142, 35],
-    [152, 251, 152],
-    [70, 130, 180],
-    [220, 20, 60],
-    [255, 0, 0],
-    [0, 0, 142],
-    [0, 0, 70],
-    [0, 60, 100],
-    [0, 80, 100],
-    [0, 0, 230],
-    [119, 11, 32],
-]
 
 
 class RGBDataset(data.Dataset):
@@ -361,163 +300,172 @@ def get_train_loader(engine, dataset, config):
     return train_loader, train_sampler
 
 
-LOGGER = logging.getLogger(name="main")
-LOGGER.setLevel(level=logging.DEBUG)
-formatter = logging.Formatter(fmt="[%(filename)s] %(message)s")
+def main():
+    LOGGER = logging.getLogger(name="main")
+    LOGGER.setLevel(level=logging.DEBUG)
+    formatter = logging.Formatter(fmt="[%(filename)s] %(message)s")
 
-with Engine() as engine:
-    file_handler = logging.FileHandler(engine.log_file, mode="a")
-    file_handler.setLevel(level=logging.INFO)
-    file_handler.setFormatter(formatter)
-    LOGGER.addHandler(file_handler)
-    stream_handler = logging.StreamHandler()
-    stream_handler.setLevel(logging.DEBUG if engine.is_master else logging.WARN)
-    stream_handler.setFormatter(formatter)
-    LOGGER.addHandler(stream_handler)
+    with Engine() as engine:
+        file_handler = logging.FileHandler(engine.log_file, mode="a")
+        file_handler.setLevel(level=logging.INFO)
+        file_handler.setFormatter(formatter)
+        LOGGER.addHandler(file_handler)
+        stream_handler = logging.StreamHandler()
+        stream_handler.setLevel(logging.DEBUG if engine.is_master else logging.WARN)
+        stream_handler.setFormatter(formatter)
+        LOGGER.addHandler(stream_handler)
 
-    LOGGER.info(engine.args.pretty_text)
+        LOGGER.info(engine.args.pretty_text)
 
-    cudnn.benchmark = True
-    seed = engine.args.seed
-    if engine.distributed:
-        seed = engine.local_rank
-    torch.manual_seed(seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed(seed)
-
-    # data loader
-    train_loader, train_sampler = get_train_loader(
-        engine, RGBDataset, config=engine.args
-    )
-    tb = SummaryWriter(log_dir=engine.tb_dir)
-
-    # config network and criterion
-    model = model_zoo.__dict__[engine.args.model_name](
-        mid_dim=engine.args.embed_dim, num_classes=len(RGBDataset.valid_classes)
-    )
-    loss_func = nn.CrossEntropyLoss(
-        reduction="mean", ignore_index=engine.args.background
-    )
-
-    # group weight and config optimizer
-    base_lr = engine.args.lr
-    if engine.distributed:
-        base_lr = engine.args.lr
-
-    params_list = group_weight(model, base_lr, mode=engine.args.group_mode)
-    if engine.args.optimizer == "AdamW":
-        optimizer = torch.optim.AdamW(
-            params_list,
-            lr=base_lr,
-            betas=(0.9, 0.999),
-            weight_decay=engine.args.weight_decay,
-        )
-    elif engine.args.optimizer == "SGDM":
-        optimizer = torch.optim.SGD(
-            params_list,
-            lr=base_lr,
-            momentum=engine.args.momentum,
-            weight_decay=engine.args.weight_decay,
-        )
-    else:
-        raise NotImplementedError
-    LOGGER.info(optimizer)
-
-    # config lr policy
-    total_iteration = engine.args.nepochs * engine.args.niters_per_epoch
-    lr_policy = WarmUpPolyLR(
-        lr_power=engine.args.lr_power,
-        total_iters=total_iteration,
-        warmup_steps=engine.args.niters_per_epoch * engine.args.warm_up_epoch,
-    )
-    lr_policy.init_base_lr_group(optimizer=optimizer)
-
-    if engine.distributed:
-        LOGGER.info(".............distributed training.............")
-        if torch.cuda.is_available():
-            model.cuda()
-            model = DistributedDataParallel(
-                model,
-                device_ids=[engine.local_rank],
-                output_device=engine.local_rank,
-                find_unused_parameters=False,
-            )
-    else:
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        model.to(device)
-
-    engine.register_state(dataloader=train_loader, model=model, optimizer=optimizer)
-    if engine.continue_state_object:
-        engine.restore_checkpoint()
-    scaler = torch.cuda.amp.GradScaler(enabled=engine.args.use_fp16)
-
-    optimizer.zero_grad()
-    model.train()
-    LOGGER.info("begin trainning:")
-    for epoch in range(
-            engine.state.epoch, engine.args.nepochs + 1
-    ):  # default start from 1
+        cudnn.benchmark = True
+        seed = engine.args.seed
         if engine.distributed:
-            train_sampler.set_epoch(epoch)
-        bar_format = "{desc}[{elapsed}<{remaining},{rate_fmt}]"
+            seed = engine.local_rank
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed(seed)
 
-        dataloader = iter(train_loader)
-        sum_loss = 0
-        for idx in range(engine.args.niters_per_epoch):
-            engine.update_iteration(epoch, idx)
-            current_idx = (epoch - 1) * engine.args.niters_per_epoch + idx
-            lrs_group = lr_policy.step(optimizer=optimizer, curr_iter=current_idx)
+        # data loader
+        train_loader, train_sampler = get_train_loader(
+            engine, RGBDataset, config=engine.args
+        )
+        tb = SummaryWriter(log_dir=engine.tb_dir)
 
-            minibatch = dataloader.next()
-            imgs = minibatch["data"]
-            gts = minibatch["label"]
+        # config network and criterion
+        model = model_zoo.__dict__[engine.args.model_name](
+            mid_dim=engine.args.embed_dim, num_classes=len(RGBDataset.valid_classes)
+        )
+        loss_func = nn.CrossEntropyLoss(
+            reduction="mean", ignore_index=engine.args.background
+        )
 
-            imgs = imgs.cuda(non_blocking=True)
-            gts = gts.cuda(non_blocking=True)
+        # group weight and config optimizer
+        base_lr = engine.args.lr
+        if engine.distributed:
+            base_lr = engine.args.lr
 
-            with torch.cuda.amp.autocast(enabled=engine.args.use_fp16):
-                logits = model(imgs)
-                loss = loss_func(input=logits, target=gts)
+        params_list = group_weight(model, base_lr, mode=engine.args.group_mode)
+        if engine.args.optimizer == "AdamW":
+            optimizer = torch.optim.AdamW(
+                params_list,
+                lr=base_lr,
+                betas=(0.9, 0.999),
+                weight_decay=engine.args.weight_decay,
+            )
+        elif engine.args.optimizer == "SGDM":
+            optimizer = torch.optim.SGD(
+                params_list,
+                lr=base_lr,
+                momentum=engine.args.momentum,
+                weight_decay=engine.args.weight_decay,
+            )
+        else:
+            raise NotImplementedError
+        LOGGER.info(optimizer)
 
-                # reduce the whole loss over multi-gpu
+        # config lr policy
+        total_iteration = engine.args.nepochs * engine.args.niters_per_epoch
+        lr_policy = WarmUpPolyLR(
+            lr_power=engine.args.lr_power,
+            total_iters=total_iteration,
+            warmup_steps=engine.args.niters_per_epoch * engine.args.warm_up_epoch,
+        )
+        lr_policy.init_base_lr_group(optimizer=optimizer)
+
+        if engine.distributed:
+            LOGGER.info(".............distributed training.............")
+            if torch.cuda.is_available():
+                model.cuda()
+                model = DistributedDataParallel(
+                    model,
+                    device_ids=[engine.local_rank],
+                    output_device=engine.local_rank,
+                    find_unused_parameters=False,
+                )
+        else:
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            model.to(device)
+
+        engine.register_state(dataloader=train_loader, model=model, optimizer=optimizer)
+        if engine.continue_state_object:
+            engine.restore_checkpoint()
+        scaler = torch.cuda.amp.GradScaler(enabled=engine.args.use_fp16)
+
+        optimizer.zero_grad()
+        model.train()
+        LOGGER.info("begin trainning:")
+        for epoch in range(
+                engine.state.epoch, engine.args.nepochs + 1
+        ):  # default start from 1
+            if engine.distributed:
+                train_sampler.set_epoch(epoch)
+            bar_format = "{desc}[{elapsed}<{remaining},{rate_fmt}]"
+
+            dataloader = iter(train_loader)
+            sum_loss = 0
+            for idx in range(engine.args.niters_per_epoch):
+                engine.update_iteration(epoch, idx)
+                current_idx = (epoch - 1) * engine.args.niters_per_epoch + idx
+                lrs_group = lr_policy.step(optimizer=optimizer, curr_iter=current_idx)
+
+                minibatch = dataloader.next()
+                imgs = minibatch["data"]
+                gts = minibatch["label"]
+
+                imgs = imgs.cuda(non_blocking=True)
+                gts = gts.cuda(non_blocking=True)
+
+                with torch.cuda.amp.autocast(enabled=engine.args.use_fp16):
+                    logits = model(imgs)
+                    loss = loss_func(input=logits, target=gts)
+
+                    # reduce the whole loss over multi-gpu
+                    if engine.distributed:
+                        reduce_loss = pt_utils.all_reduce_tensor(
+                            loss, world_size=engine.world_size
+                        )
+
+                scaler.scale(loss).backward()
+                scaler.step(optimizer)
+                scaler.update()
+                optimizer.zero_grad()
+
+                lr_str = ",".join([f"{lr:.4e}" for lr in lrs_group])
+                print_str = (
+                    f"TR @ E{epoch}/{engine.args.nepochs} I{idx + 1}/{engine.args.niters_per_epoch}]"
+                    f" lr={lr_str}"
+                    f" {tuple(gts.shape)}-{tuple(imgs.shape)}"
+                )
                 if engine.distributed:
-                    reduce_loss = pt_utils.all_reduce_tensor(
-                        loss, world_size=engine.world_size
+                    sum_loss += reduce_loss.item()
+                    print_str += f" loss={reduce_loss.item():.4f} total_loss={sum_loss / (idx + 1):.4f}"
+                else:
+                    sum_loss += loss
+                    print_str += (
+                        f" loss={loss:.4f} total_loss={sum_loss / (idx + 1):.4f}"
                     )
 
-            scaler.scale(loss).backward()
-            scaler.step(optimizer)
-            scaler.update()
-            optimizer.zero_grad()
-
-            lr_str = ",".join([f"{lr:.4e}" for lr in lrs_group])
-            print_str = (
-                f"TR @ E{epoch}/{engine.args.nepochs} I{idx + 1}/{engine.args.niters_per_epoch}]"
-                f" lr={lr_str}"
-                f" {tuple(gts.shape)}-{tuple(imgs.shape)}"
-            )
-            if engine.distributed:
-                sum_loss += reduce_loss.item()
-                print_str += f" loss={reduce_loss.item():.4f} total_loss={sum_loss / (idx + 1):.4f}"
-            else:
-                sum_loss += loss
-                print_str += f" loss={loss:.4f} total_loss={sum_loss / (idx + 1):.4f}"
+                if engine.is_master:
+                    if current_idx % 10 == 0 or (
+                            idx == 0 or idx == (engine.args.niters_per_epoch - 1)
+                    ):
+                        for i, lr in enumerate(lrs_group):
+                            tb.add_scalar(f"lr/lr_{i}", lr, current_idx)
+                        LOGGER.info(print_str)
 
             if engine.is_master:
-                if current_idx % 10 == 0 or (
-                        idx == 0 or idx == (engine.args.niters_per_epoch - 1)
-                ):
-                    for i, lr in enumerate(lrs_group):
-                        tb.add_scalar(f"lr/lr_{i}", lr, current_idx)
-                    LOGGER.info(print_str)
+                tb.add_scalar(
+                    "train_loss", sum_loss / engine.args.niters_per_epoch, epoch
+                )
 
-        if engine.is_master:
-            tb.add_scalar("train_loss", sum_loss / engine.args.niters_per_epoch, epoch)
+            if (
+                    (epoch >= engine.args.checkpoint_start_epoch)
+                    and (epoch % engine.args.checkpoint_step == 0)
+                    or (epoch == engine.args.nepochs)
+            ):
+                if engine.is_master:
+                    engine.save_checkpoint(engine.checkpoint_dir)
 
-        if (
-                (epoch >= engine.args.checkpoint_start_epoch)
-                and (epoch % engine.args.checkpoint_step == 0)
-                or (epoch == engine.args.nepochs)
-        ):
-            if engine.is_master:
-                engine.save_checkpoint(engine.checkpoint_dir)
+
+if __name__ == "__main__":
+    main()
