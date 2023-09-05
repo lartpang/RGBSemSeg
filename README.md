@@ -1,4 +1,9 @@
-# 基于聚合扩散注意力机制的互补变换器语义分割算法
+# 基于聚合扩散注意力机制的跨媒体互补变换器场景解析算法
+
+## 模型结构图
+
+![image](https://github.com/lartpang/RGBSemSeg/assets/26847524/3f5a4a42-fc90-4dce-95cf-0f69a26ade8c)
+
 
 ## 使用方法
 
