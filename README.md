@@ -29,7 +29,7 @@ KITTI & CityScapes Semantic Segmentation 数据集。
 
 ```shell
 CUDA_VISIBLE_DEVICES=0,1 OMP_NUM_THREADS=1 torchrun \
-  --rdzv_backend=c10d -[README.md](..%2FSemSegProjChaYan%2FREADME.md)-rdzv_endpoint=localhost:20746 --nnodes=1 --nproc_per_node=2 \
+  --rdzv_backend=c10d --rdzv_endpoint=localhost:20746 --nnodes=1 --nproc_per_node=2 \
   train.py config.py --model-name DualRGBGADFormerSwinB_22K_384 --output-root ./outputs
 ```
 
