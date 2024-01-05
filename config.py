@@ -41,7 +41,7 @@ norm_std = [0.229, 0.224, 0.225]
 """Train Config"""
 image_height = 352
 image_width = 352
-model_name = "RGBGADFormerSwinB_22K_384"  # Remember change the path below.
+model_name = "DualRGBGADFormerSwinB_22K_384"  # Remember change the path below.
 embed_dim = 64
 optimizer = "AdamW"
 
@@ -72,10 +72,8 @@ bn_momentum = 0.1
 """Eval Config"""
 eval_crop_size = [352, 352]  # [height weight]
 eval_stride_rate = 2 / 3
-eval_scale_array = [1]
 eval_flip = False
-# eval_scale_array = [0.75, 1, 1.25]
-# eval_flip = True
+eval_scale_array = [1.5, 2.0, 2.5]
 
 """Store Config"""
 checkpoint_start_epoch = 250

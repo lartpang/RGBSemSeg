@@ -302,7 +302,7 @@ class DiffGuidedEnhancer(nn.Module):
         return guide_feat
 
 
-class DualRGBModel(nn.Module):
+class DualRGBGADFormerSwinB_22K_384(nn.Module):
     def __init__(
         self,
         k=4,

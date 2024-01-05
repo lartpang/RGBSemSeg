@@ -26,7 +26,7 @@ KITTI & CityScapes Semantic Segmentation 数据集。
 ```shell
 CUDA_VISIBLE_DEVICES=0,1 OMP_NUM_THREADS=1 torchrun \
   --rdzv_backend=c10d --rdzv_endpoint=localhost:20746 --nnodes=1 --nproc_per_node=2 \
-  train.py config.py --model-name DualRGBModel --output-root ./outputs
+  train.py config.py --model-name DualRGBGADFormerSwinB_22K_384 --output-root ./outputs
 ```
 
 ### 模型评估
@@ -36,7 +36,7 @@ CUDA_VISIBLE_DEVICES=0,1 OMP_NUM_THREADS=1 torchrun \
 ```shell
 python predict.py config.py \
   --load-from outputs/model/checkpoints/epoch-400.pth \
-  --model-name DualRGBModel \
+  --model-name DualRGBGADFormerSwinB_22K_384 \
   --image-root "<image root of testing set>" \
   --image-format "<image format of testing set>" \
   --image-source "<image name list of testing set>" \

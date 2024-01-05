@@ -1,1 +1,1 @@
-from .model import DualRGBModel
+from .model import DualRGBGADFormerSwinB_22K_384
