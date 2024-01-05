@@ -4,7 +4,6 @@
 
 ![image](https://github.com/lartpang/RGBSemSeg/assets/26847524/3f5a4a42-fc90-4dce-95cf-0f69a26ade8c)
 
-
 ## 使用方法
 
 ### 安装
@@ -24,19 +23,21 @@ KITTI & CityScapes Semantic Segmentation 数据集。
 
 ### 模型训练
 
-1. 添加数据文件夹的软链接：`ln -s <存放KITTI和CityScapes数据集的文件夹> datasets` 
+1. 添加数据文件夹的软链接：`ln -s <存放KITTI和CityScapes数据集的文件夹> datasets`
 2. 调整训练配置文件`config.py`中的数据集路径。
 3. 在两块GPU上运行分布式训练，并将训练结果保存至`outputs`文件夹中：
 
 ```shell
 CUDA_VISIBLE_DEVICES=0,1 OMP_NUM_THREADS=1 torchrun \
-  --rdzv_backend=c10d --rdzv_endpoint=localhost:20746 --nnodes=1 --nproc_per_node=2 \
+  --rdzv_backend=c10d -[README.md](..%2FSemSegProjChaYan%2FREADME.md)-rdzv_endpoint=localhost:20746 --nnodes=1 --nproc_per_node=2 \
   train.py config.py --model-name DualRGBGADFormerSwinB_22K_384 --output-root ./outputs
 ```
 
 ### 模型评估
 
 在单块GPU环境中执行如下指令，使用当前的`epoch-400.pth`的权重文件进行推理预测：
+
+权重文件和训练日志：[Baidu Pan](https://pan.baidu.com/s/1A4Yj8s7l1z_gjsb1cKlu_w?pwd=garu)
 
 ```shell
 python predict.py config.py \
